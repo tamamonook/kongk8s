@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Added support for setting `.Values.certificates.renewBefore` and `.Values.certificates.duration` timers to custom values.
+
 ## 2.48.0
 
 ### Fixes
