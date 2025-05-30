@@ -1,5 +1,17 @@
-# Kong Dataplane Configuration for Konnect
-# Version: 3.10
+## Core Deployment Settings
+deployment:
+  kong:
+    enabled: true  # This fixes the nil pointer error for .Values.deployment.kong.enabled
+  serviceAccount:
+    create: true
+    automountServiceAccountToken: false
+  daemonset: false
+  hostNetwork: false
+  revisionHistoryLimit: 10
+  prefixDir:
+    sizeLimit: 256Mi
+  tmpDir:
+    sizeLimit: 1Gi
 
 ## Image Configuration
 image:
@@ -37,6 +49,28 @@ env:
   proxy_access_log: "off"
   vitals: "off"
 
+## Service Configuration
+proxy:
+  enabled: true
+  type: LoadBalancer
+  loadBalancerClass: ""
+  
+  http:
+    enabled: true
+    servicePort: 80
+    containerPort: 8000
+    
+  tls:
+    enabled: true
+    servicePort: 443
+    containerPort: 8443
+    parameters:
+    - http2
+
+# Explicitly disable UDP proxy to prevent template errors
+udpProxy:
+  enabled: false
+
 ## Disable Unnecessary Components
 ingressController:
   enabled: false
@@ -71,24 +105,6 @@ containerSecurityContext:
     drop:
     - ALL
 
-## Proxy Service Configuration
-proxy:
-  enabled: true
-  type: LoadBalancer
-  loadBalancerClass: "service.konghq.com/kong-proxy"
-  
-  http:
-    enabled: true
-    servicePort: 80
-    containerPort: 8000
-    
-  tls:
-    enabled: true
-    servicePort: 443
-    containerPort: 8443
-    parameters:
-    - http2
-
 ## Secrets Volume Mount
 secretVolumes:
 - kong-cluster-cert
@@ -112,3 +128,8 @@ updateStrategy:
   rollingUpdate:
     maxSurge: 1
     maxUnavailable: 0
+
+## Migration Settings
+migrations:
+  preUpgrade: false  # Disabled for dataplane
+  postUpgrade: false # Disabled for dataplane
